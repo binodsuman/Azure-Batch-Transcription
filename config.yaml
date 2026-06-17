@@ -1,0 +1,24 @@
+speech:
+  endpoint: ""
+  api_key: ""
+  locale: "en-US"
+
+# Writable container SAS URL
+
+  destination_container_sas_url: ""
+
+
+audio:
+  sas_url: ""
+
+storage:
+  connection_string: ""
+  container_name: "transcript-output"
+
+output:
+  raw_folder: "raw"
+  processed_folder: "processed"
+
+polling:
+  interval_seconds: 30
+  timeout_minutes: 120
