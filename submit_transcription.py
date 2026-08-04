@@ -18,9 +18,6 @@ def validate_config(cfg):
         "speech.endpoint": cfg.get("speech", {}).get("endpoint"),
         "speech.api_key": cfg.get("speech", {}).get("api_key"),
         "speech.locale": cfg.get("speech", {}).get("locale"),
-        "speech.destination_container_sas_url": cfg.get("speech", {}).get(
-            "destination_container_sas_url"
-        ),
         "audio.sas_url": cfg.get("audio", {}).get("sas_url"),
     }
     missing = [k for k, v in required.items() if not v]
@@ -52,9 +49,7 @@ def main():
             "wordLevelTimestampsEnabled": True,
             "punctuationMode": "DictatedAndAutomatic",
             "profanityFilterMode": "Masked"
-        },
-        "destinationContainerUrl":
-            cfg["speech"]["destination_container_sas_url"]
+        }
     }
 
     headers = {

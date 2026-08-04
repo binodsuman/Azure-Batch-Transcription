@@ -134,6 +134,7 @@ Azure Portal
    -> Create Resource
    -> AI + Machine Learning
    -> Speech Service
+   -> Storage Service
 ```
 
 Required values:
@@ -161,51 +162,55 @@ https://eastus.api.cognitive.microsoft.com
 
 ## 2. Azure Storage Account
 
-Create:
+# Azure Storage Requirements
 
-```text
-Azure Storage Account
-```
+Only two SAS URLs are required.
 
-Required:
+## 1. Input Audio Blob SAS URL
 
-```text
-Connection String
-Container Name
-```
+Upload your audio file to Azure Blob Storage and generate a **Blob SAS URL** with **Read** permission.
 
 Example:
 
 ```text
-transcript-output
+https://<storage-account>.blob.core.windows.net/audio/customer_call.wav?<sas-token>
+```
+
+This URL is configured in:
+
+```yaml
+audio:
+  sas_url: "<INPUT_AUDIO_BLOB_SAS_URL>"
 ```
 
 ---
 
-## 3. Input Audio SAS URL
+## 2. Destination Container SAS URL
 
-Generate SAS URL for source audio:
+Create (or choose) a destination container where Azure Speech and this application will store transcription results.
 
-Example:
+Generate a **Container SAS URL** with at least the following permissions:
 
-```text
-https://storage.blob.core.windows.net/audio/customer_call.wav?<sas-token>
-```
-
----
-
-## 4. Destination Container SAS URL
-
-Generate Container SAS URL:
+- Read
+- Write
+- List
 
 Example:
 
 ```text
-https://storage.blob.core.windows.net/transcript-output?<sas-token>
+https://<storage-account>.blob.core.windows.net/transcript-output?<sas-token>
 ```
 
-Azure Speech writes raw transcription output here.
+Configure it as:
 
+```yaml
+speech:
+  destination_container_sas_url: "<DESTINATION_CONTAINER_SAS_URL>"
+```
+
+No Azure Storage connection string is required.
+No storage account key is required.
+Only these two SAS URLs are needed.
 ---
 
 # Project Structure
@@ -292,21 +297,16 @@ Update `config.yaml`
 
 ```yaml
 speech:
-  endpoint: "https://eastus.api.cognitive.microsoft.com"
-  api_key: "YOUR_SPEECH_KEY"
+  endpoint: "https://<region>.api.cognitive.microsoft.com"
+  api_key: "<YOUR_SPEECH_KEY>"
   locale: "en-US"
 
-  destination_container_sas_url: "DESTINATION_CONTAINER_SAS"
+  # Destination container SAS URL
+  destination_container_sas_url: "<DESTINATION_CONTAINER_SAS_URL>"
 
 audio:
-  sas_url: "AUDIO_FILE_SAS_URL"
-
-storage:
-  connection_string: "AZURE_STORAGE_CONNECTION_STRING"
-  container_name: "transcript-output"
-
-output:
-  processed_folder: "processed"
+  # Input audio blob SAS URL
+  sas_url: "<INPUT_AUDIO_BLOB_SAS_URL>"
 
 polling:
   interval_seconds: 30
@@ -471,6 +471,47 @@ Channels
 ```
 
 ---
+
+# Quick Start
+
+## Step 1 - Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## Step 2 - Submit Batch Transcription Job
+
+```bash
+python submit_transcription.py
+```
+
+This submits the transcription request to Azure Speech and creates:
+
+```
+transcription_job.json
+```
+
+---
+
+## Step 3 - Monitor Job
+
+```bash
+python poll_transcription.py
+```
+
+The script will:
+
+- Poll Azure every 30 seconds
+- Wait until the job completes
+- Download Azure transcript
+- Generate simplified JSON
+- Upload `<filename>_transcript.json` to the destination container
+
+---
+
 
 # Output JSON Structure
 
