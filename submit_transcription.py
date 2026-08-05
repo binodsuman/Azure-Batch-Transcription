@@ -38,6 +38,11 @@ def main():
 
     transcription_url = f"{endpoint}/speechtotext/v3.2/transcriptions"
 
+    # How long Azure keeps the job + raw results after completion.
+    # Azure allows 6 hours - 31 days; 48 hours is Microsoft's recommended
+    # default for pipelines that consume results right away.
+    time_to_live_hours = cfg["speech"].get("time_to_live_hours", 48)
+
     payload = {
         "displayName": f"transcription-{uuid.uuid4()}",
         "locale": locale,
@@ -45,10 +50,11 @@ def main():
             cfg["audio"]["sas_url"]
         ],
         "properties": {
-            "diarizationEnabled": True,
+            # "diarizationEnabled": True,
             "wordLevelTimestampsEnabled": True,
             "punctuationMode": "DictatedAndAutomatic",
-            "profanityFilterMode": "Masked"
+            "profanityFilterMode": "Masked",
+            "timeToLiveHours": time_to_live_hours
         }
     }
 
@@ -107,6 +113,7 @@ def main():
     print("=" * 80)
     print(f"Job ID      : {job_id}")
     print(f"Status URL  : {location}")
+    print(f"TTL (hours) : {time_to_live_hours}")
     print()
     print("CURL (to check status manually):")
     print(
