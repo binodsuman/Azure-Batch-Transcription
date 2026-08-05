@@ -50,7 +50,7 @@ def main():
             cfg["audio"]["sas_url"]
         ],
         "properties": {
-            # "diarizationEnabled": True,
+            "diarizationEnabled": True,
             "wordLevelTimestampsEnabled": True,
             "punctuationMode": "DictatedAndAutomatic",
             "profanityFilterMode": "Masked",
